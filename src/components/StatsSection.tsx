@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, animate } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 const stats = [
@@ -14,12 +14,13 @@ function Counter({ target, suffix }: { target: number; suffix: string }) {
   const hasAnimated = useRef(false);
 
   useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated.current) {
           hasAnimated.current = true;
-          const motionVal = useMotionValue(0);
-          const controls = animate(motionVal, target, {
+          const controls = animate(0, target, {
             duration: 2,
             ease: "easeOut",
             onUpdate: (v) => setValue(Math.round(v)),
@@ -29,7 +30,7 @@ function Counter({ target, suffix }: { target: number; suffix: string }) {
       },
       { threshold: 0.5 }
     );
-    if (ref.current) observer.observe(ref.current);
+    observer.observe(el);
     return () => observer.disconnect();
   }, [target]);
 
