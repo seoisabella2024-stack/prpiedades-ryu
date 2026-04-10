@@ -5,20 +5,20 @@ import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react";
 const testimonials = [
   {
     name: "María González",
-    role: "Compradora en Las Condes",
-    text: "Una experiencia excepcional. El equipo de LUXEPROP nos guió en cada paso hasta encontrar nuestra casa soñada. Su profesionalismo es insuperable.",
+    role: "Arrendataria en Los Ángeles",
+    text: "Una experiencia excepcional. El equipo de Ryu Propiedades nos guió en cada paso hasta encontrar nuestro departamento ideal. Su profesionalismo es insuperable.",
     rating: 5,
   },
   {
     name: "Carlos Rodríguez",
-    role: "Vendedor en Vitacura",
-    text: "Vendieron mi propiedad en tiempo récord y por encima del precio esperado. Su conocimiento del mercado de lujo es extraordinario.",
+    role: "Propietario en Los Ángeles",
+    text: "Ryu Propiedades administró mi propiedad de forma impecable. Encontraron arrendatarios confiables en tiempo récord.",
     rating: 5,
   },
   {
     name: "Ana Martínez",
     role: "Inversionista",
-    text: "La gestión de mis propiedades ha sido impecable. Me siento completamente respaldada y la rentabilidad ha superado mis expectativas.",
+    text: "La gestión de mis propiedades con Ryu Propiedades ha sido impecable. Me siento completamente respaldada y la rentabilidad ha superado mis expectativas.",
     rating: 5,
   },
 ];
