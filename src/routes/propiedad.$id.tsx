@@ -1,24 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { PropertyCard } from "@/components/PropertyCard";
-import { getPropertyById, getSuggestions } from "@/data/properties";
-import { Bed, Bath, Maximize, MapPin, ArrowLeft, CheckCircle } from "lucide-react";
+import { useProperty, useSuggestions } from "@/hooks/use-properties";
+import { Bed, Bath, Maximize, MapPin, ArrowLeft, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/propiedad/$id")({
   component: PropertyDetailPage,
-  head: ({ params }) => {
-    const property = getPropertyById(params.id);
-    return {
-      meta: [
-        { title: property ? `${property.title} — Ryu Propiedades` : "Propiedad — Ryu Propiedades" },
-        { name: "description", content: property?.description?.slice(0, 155) ?? "" },
-        { property: "og:title", content: property?.title ?? "Propiedad" },
-        { property: "og:description", content: property?.description?.slice(0, 155) ?? "" },
-      ],
-    };
-  },
+  head: () => ({
+    meta: [
+      { title: "Propiedad — Ryu Propiedades" },
+    ],
+  }),
   notFoundComponent: () => (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
@@ -31,9 +26,66 @@ export const Route = createFileRoute("/propiedad/$id")({
   ),
 });
 
+function ImageGallery({ images, title }: { images: string[]; title: string }) {
+  const [current, setCurrent] = useState(0);
+  if (!images || images.length === 0) return null;
+
+  const prev = () => setCurrent((c) => (c === 0 ? images.length - 1 : c - 1));
+  const next = () => setCurrent((c) => (c === images.length - 1 ? 0 : c + 1));
+
+  return (
+    <div>
+      <div className="relative overflow-hidden rounded-lg">
+        <img
+          src={images[current]}
+          alt={`${title} - Foto ${current + 1}`}
+          className="w-full aspect-4/3 object-cover"
+          width={800}
+          height={600}
+        />
+        {images.length > 1 && (
+          <>
+            <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 text-foreground hover:bg-background transition-colors">
+              <ChevronLeft size={20} />
+            </button>
+            <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 text-foreground hover:bg-background transition-colors">
+              <ChevronRight size={20} />
+            </button>
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 px-3 py-1 rounded-full text-xs text-foreground">
+              {current + 1} / {images.length}
+            </div>
+          </>
+        )}
+      </div>
+      {images.length > 1 && (
+        <div className="mt-3 grid grid-cols-5 gap-2">
+          {images.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`overflow-hidden rounded ${i === current ? "ring-2 ring-primary" : "opacity-60 hover:opacity-100"} transition-all`}
+            >
+              <img src={img} alt="" className="w-full h-16 object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PropertyDetailPage() {
   const { id } = Route.useParams();
-  const property = getPropertyById(id);
+  const { property, loading } = useProperty(id);
+  const suggestions = useSuggestions(id);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">Cargando...</p>
+      </div>
+    );
+  }
 
   if (!property) {
     return (
@@ -48,33 +100,23 @@ function PropertyDetailPage() {
     );
   }
 
-  const suggestions = getSuggestions(id);
+  const allImages = property.images && property.images.length > 0
+    ? property.images
+    : property.image ? [property.image] : [];
 
   return (
     <div className="min-h-screen">
       <Navbar />
-
       <div className="section-padding mt-16">
         <div className="mx-auto max-w-7xl">
-          {/* Back Link */}
           <Link to="/arriendos" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8 font-body text-sm">
             <ArrowLeft size={16} />
             Volver a propiedades
           </Link>
 
           <div className="grid gap-12 lg:grid-cols-2">
-            {/* Image */}
-            <div className="overflow-hidden rounded-lg">
-              <img
-                src={property.image}
-                alt={property.title}
-                className="w-full aspect-4/3 object-cover"
-                width={800}
-                height={600}
-              />
-            </div>
+            <ImageGallery images={allImages} title={property.title} />
 
-            {/* Info */}
             <div>
               <span className="rounded-sm bg-primary px-3 py-1 font-body text-xs font-medium text-primary-foreground">
                 {property.tag}
@@ -138,7 +180,6 @@ function PropertyDetailPage() {
             </div>
           </div>
 
-          {/* Suggestions */}
           {suggestions.length > 0 && (
             <div className="mt-20">
               <div className="mb-8 text-center">
@@ -154,7 +195,6 @@ function PropertyDetailPage() {
           )}
         </div>
       </div>
-
       <Footer />
       <WhatsAppButton />
     </div>

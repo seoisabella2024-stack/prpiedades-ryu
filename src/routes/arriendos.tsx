@@ -3,7 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { PropertyCard } from "@/components/PropertyCard";
-import { getPropertiesByTag } from "@/data/properties";
+import { useProperties } from "@/hooks/use-properties";
 
 export const Route = createFileRoute("/arriendos")({
   component: ArriendosPage,
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/arriendos")({
 });
 
 function ArriendosPage() {
-  const arriendos = getPropertiesByTag("Arriendo");
+  const { properties: arriendos, loading } = useProperties("Arriendo");
 
   return (
     <div className="min-h-screen">
@@ -33,13 +33,15 @@ function ArriendosPage() {
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {arriendos.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
-
-          {arriendos.length === 0 && (
+          {loading ? (
+            <p className="text-center text-muted-foreground py-8">Cargando...</p>
+          ) : arriendos.length > 0 ? (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {arriendos.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </div>
+          ) : (
             <p className="text-center text-muted-foreground">No hay propiedades disponibles en esta categoría.</p>
           )}
         </div>
