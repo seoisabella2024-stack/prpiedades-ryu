@@ -5,6 +5,7 @@ import property3 from "@/assets/property-3.jpg";
 export interface Property {
   id: string;
   image: string;
+  images?: string[];
   title: string;
   location: string;
   price: string;
@@ -18,10 +19,10 @@ export interface Property {
 }
 
 export const properties: Property[] = [
-  // === ARRIENDOS ===
   {
     id: "depto-balmaceda",
     image: property1,
+    images: [property1],
     title: "Depto Amoblado Full — Calle Balmaceda",
     location: "Los Ángeles, Biobío",
     price: "$600.000 CLP + GGCC",
@@ -37,6 +38,7 @@ export const properties: Property[] = [
   {
     id: "casa-mediterranea-antuco",
     image: property2,
+    images: [property2],
     title: "Casa Mediterránea en Condominio",
     location: "Km 1.5 Camino Antuco, Los Ángeles",
     price: "$1.200.000 CLP (GGCC incl.)",
@@ -52,6 +54,7 @@ export const properties: Property[] = [
   {
     id: "depto-luminity",
     image: property3,
+    images: [property3],
     title: "Depto Moderno — Edificio Luminity",
     location: "Laguna Verde 2365, Los Ángeles",
     price: "$750.000 CLP (GGCC incl.)",
@@ -64,10 +67,10 @@ export const properties: Property[] = [
     description:
       "Lindo y moderno departamento en Edificio Luminity. 75 m², amplio living, cocina equipada con artefactos, comedor isla con banquetas, 2 habitaciones (una suite con walk-in closet), 2 baños completos, amplia terraza, bodega, estacionamiento, 2 balcones, piso octavo, orientación poniente. Edificio con piscina, quinchos, sala de reuniones co-work, gimnasio y conserje 24h.",
   },
-  // === VENTAS ===
   {
     id: "casa-parcela-antuco",
     image: property2,
+    images: [property2],
     title: "Casa en Parcela — Camino Antuco",
     location: "Km 3, Camino Antuco, Los Ángeles",
     price: "$185.000.000 CLP",
@@ -83,6 +86,7 @@ export const properties: Property[] = [
   {
     id: "depto-centro-la",
     image: property1,
+    images: [property1],
     title: "Departamento Céntrico — Los Ángeles",
     location: "Centro, Los Ángeles",
     price: "$62.000.000 CLP",
@@ -98,6 +102,7 @@ export const properties: Property[] = [
   {
     id: "terreno-nacimiento",
     image: property3,
+    images: [property3],
     title: "Terreno Urbano — Nacimiento",
     location: "Nacimiento, Biobío",
     price: "$18.500.000 CLP",

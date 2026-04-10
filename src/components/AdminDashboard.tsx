@@ -1,21 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { properties, type Property } from "@/data/properties";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bed, Bath, Maximize, LogOut, Plus, Edit, Trash2 } from "lucide-react";
+import { Bed, Bath, Maximize, LogOut, Plus, Trash2, Upload, X, Image } from "lucide-react";
+import { toast } from "sonner";
+
+type DbProperty = {
+  id: string;
+  title: string;
+  location: string;
+  price: string;
+  beds: number;
+  baths: number;
+  area: string;
+  tag: string;
+  features: string[];
+  availability: string;
+  description: string;
+  image_url: string;
+  images: string[];
+  user_id: string;
+};
 
 export function AdminDashboard({ session }: { session: any }) {
   const [activeTab, setActiveTab] = useState<"list" | "add">("list");
-  const [filterTag, setFilterTag] = useState<Property["tag"] | "all">("all");
+  const [properties, setProperties] = useState<DbProperty[]>([]);
+  const [filterTag, setFilterTag] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
+
+  const fetchProperties = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("properties")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (!error && data) setProperties(data);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProperties();
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Estás seguro de eliminar esta propiedad?")) return;
+    const { error } = await supabase.from("properties").delete().eq("id", id);
+    if (error) {
+      toast.error("Error al eliminar: " + error.message);
+    } else {
+      toast.success("Propiedad eliminada");
+      fetchProperties();
+    }
+  };
+
   const filtered = filterTag === "all"
     ? properties
     : properties.filter((p) => p.tag === filterTag);
+
+  const tags = ["all", "Arriendo", "Venta", "Terreno"];
 
   return (
     <div>
@@ -49,117 +95,180 @@ export function AdminDashboard({ session }: { session: any }) {
       </div>
 
       {activeTab === "list" && (
-        <PropertyList filtered={filtered} filterTag={filterTag} setFilterTag={setFilterTag} />
-      )}
-      {activeTab === "add" && (
-        <AddPropertyForm onDone={() => setActiveTab("list")} />
-      )}
-    </div>
-  );
-}
+        <div>
+          <div className="flex gap-2 mb-6">
+            {tags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setFilterTag(tag)}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${filterTag === tag ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground hover:bg-accent"}`}
+              >
+                {tag === "all" ? "Todos" : tag}
+              </button>
+            ))}
+          </div>
 
-function PropertyList({
-  filtered,
-  filterTag,
-  setFilterTag,
-}: {
-  filtered: Property[];
-  filterTag: Property["tag"] | "all";
-  setFilterTag: (tag: Property["tag"] | "all") => void;
-}) {
-  const tags: (Property["tag"] | "all")[] = ["all", "Arriendo", "Venta", "Terreno"];
+          {loading ? (
+            <p className="text-center text-muted-foreground py-8">Cargando...</p>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-16 rounded-lg bg-secondary">
+              <p className="font-heading text-lg font-semibold text-foreground mb-2">Sin propiedades</p>
+              <p className="text-body text-sm">Agrega tu primera propiedad con el botón "Agregar".</p>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-border overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-secondary">
+                    <tr>
+                      <th className="px-4 py-3 font-body text-xs font-semibold text-foreground">Propiedad</th>
+                      <th className="px-4 py-3 font-body text-xs font-semibold text-foreground hidden md:table-cell">Ubicación</th>
+                      <th className="px-4 py-3 font-body text-xs font-semibold text-foreground">Precio</th>
+                      <th className="px-4 py-3 font-body text-xs font-semibold text-foreground hidden sm:table-cell">Tipo</th>
+                      <th className="px-4 py-3 font-body text-xs font-semibold text-foreground hidden lg:table-cell">Fotos</th>
+                      <th className="px-4 py-3 font-body text-xs font-semibold text-foreground">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((p) => (
+                      <tr key={p.id} className="border-t border-border hover:bg-accent/30 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            {(p.image_url || p.images?.[0]) && (
+                              <img src={p.image_url || p.images[0]} alt={p.title} className="h-10 w-14 rounded object-cover hidden sm:block" />
+                            )}
+                            <span className="font-body text-sm font-medium text-foreground">{p.title}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 font-body text-sm text-muted-foreground hidden md:table-cell">{p.location}</td>
+                        <td className="px-4 py-3 font-heading text-sm font-semibold text-primary">{p.price}</td>
+                        <td className="px-4 py-3 hidden sm:table-cell">
+                          <span className="rounded bg-primary/10 px-2 py-0.5 font-body text-xs font-medium text-primary">{p.tag}</span>
+                        </td>
+                        <td className="px-4 py-3 hidden lg:table-cell">
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Image size={12} /> {p.images?.length || 0}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => handleDelete(p.id)}
+                            className="p-1.5 rounded text-destructive hover:bg-destructive/10 transition-colors"
+                            title="Eliminar"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
-  return (
-    <div>
-      <div className="flex gap-2 mb-6">
-        {tags.map((tag) => (
-          <button
-            key={tag}
-            onClick={() => setFilterTag(tag)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${filterTag === tag ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground hover:bg-accent"}`}
-          >
-            {tag === "all" ? "Todos" : tag}
-          </button>
-        ))}
-      </div>
-
-      <div className="rounded-lg border border-border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-secondary">
-              <tr>
-                <th className="px-4 py-3 font-body text-xs font-semibold text-foreground">Propiedad</th>
-                <th className="px-4 py-3 font-body text-xs font-semibold text-foreground hidden md:table-cell">Ubicación</th>
-                <th className="px-4 py-3 font-body text-xs font-semibold text-foreground">Precio</th>
-                <th className="px-4 py-3 font-body text-xs font-semibold text-foreground hidden sm:table-cell">Tipo</th>
-                <th className="px-4 py-3 font-body text-xs font-semibold text-foreground hidden lg:table-cell">Detalles</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((p) => (
-                <tr key={p.id} className="border-t border-border hover:bg-accent/30 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <img src={p.image} alt={p.title} className="h-10 w-14 rounded object-cover hidden sm:block" />
-                      <span className="font-body text-sm font-medium text-foreground">{p.title}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-body text-sm text-muted-foreground hidden md:table-cell">{p.location}</td>
-                  <td className="px-4 py-3 font-heading text-sm font-semibold text-primary">{p.price}</td>
-                  <td className="px-4 py-3 hidden sm:table-cell">
-                    <span className="rounded bg-primary/10 px-2 py-0.5 font-body text-xs font-medium text-primary">{p.tag}</span>
-                  </td>
-                  <td className="px-4 py-3 hidden lg:table-cell">
-                    <div className="flex items-center gap-3 text-muted-foreground">
-                      <span className="flex items-center gap-1 text-xs"><Bed size={12} />{p.beds}</span>
-                      <span className="flex items-center gap-1 text-xs"><Bath size={12} />{p.baths}</span>
-                      <span className="flex items-center gap-1 text-xs"><Maximize size={12} />{p.area}</span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <p className="mt-4 text-body text-xs text-center">
+            {filtered.length} propiedad{filtered.length !== 1 ? "es" : ""} encontrada{filtered.length !== 1 ? "s" : ""}
+          </p>
         </div>
-      </div>
+      )}
 
-      <p className="mt-4 text-body text-xs text-center">
-        {filtered.length} propiedad{filtered.length !== 1 ? "es" : ""} encontrada{filtered.length !== 1 ? "s" : ""}
-      </p>
-
-      <div className="mt-8 rounded-lg bg-accent/50 p-6 text-center">
-        <p className="font-heading text-lg font-semibold text-foreground mb-2">
-          Gestión avanzada próximamente
-        </p>
-        <p className="text-body text-sm max-w-md mx-auto">
-          Para agregar, editar o eliminar propiedades de forma persistente, conectaremos la base de datos de Lovable Cloud. Por ahora las propiedades se gestionan desde el código.
-        </p>
-      </div>
+      {activeTab === "add" && (
+        <AddPropertyForm
+          session={session}
+          onDone={() => {
+            setActiveTab("list");
+            fetchProperties();
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function AddPropertyForm({ onDone }: { onDone: () => void }) {
+function AddPropertyForm({ session, onDone }: { session: any; onDone: () => void }) {
   const [form, setForm] = useState({
     title: "",
     location: "",
     price: "",
-    beds: "",
-    baths: "",
+    beds: "0",
+    baths: "0",
     area: "",
-    tag: "Arriendo" as Property["tag"],
+    tag: "Arriendo",
     description: "",
     features: "",
     availability: "Disponible",
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert("Para agregar propiedades de forma persistente, necesitamos configurar la base de datos. Por ahora esta funcionalidad es de demostración.");
-    onDone();
-  };
+  const [images, setImages] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
+
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setImages((prev) => [...prev, ...files]);
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviews((prev) => [...prev, reader.result as string]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (idx: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== idx));
+    setPreviews((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.title.trim()) {
+      toast.error("El título es obligatorio");
+      return;
+    }
+    setSubmitting(true);
+
+    try {
+      // Upload images
+      const imageUrls: string[] = [];
+      for (const file of images) {
+        const ext = file.name.split(".").pop();
+        const path = `${session.user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("property-images")
+          .upload(path, file);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from("property-images")
+          .getPublicUrl(path);
+        imageUrls.push(urlData.publicUrl);
+      }
+
+      const { error } = await supabase.from("properties").insert({
+        title: form.title,
+        location: form.location,
+        price: form.price,
+        beds: parseInt(form.beds) || 0,
+        baths: parseInt(form.baths) || 0,
+        area: form.area,
+        tag: form.tag,
+        description: form.description,
+        features: form.features.split(",").map((f) => f.trim()).filter(Boolean),
+        availability: form.availability,
+        image_url: imageUrls[0] || "",
+        images: imageUrls,
+        user_id: session.user.id,
+      });
+
+      if (error) throw error;
+      toast.success("Propiedad agregada correctamente");
+      onDone();
+    } catch (err: any) {
+      toast.error("Error: " + err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -230,9 +339,52 @@ function AddPropertyForm({ onDone }: { onDone: () => void }) {
           />
         </div>
 
+        {/* Image upload */}
+        <div>
+          <Label className="text-sm">Fotos de la propiedad</Label>
+          <div className="mt-2 border-2 border-dashed border-border rounded-lg p-6 text-center">
+            <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+            <p className="text-body text-sm mb-2">Arrastra o selecciona imágenes</p>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFiles}
+              className="hidden"
+              id="image-upload"
+            />
+            <label
+              htmlFor="image-upload"
+              className="cursor-pointer inline-block px-4 py-2 rounded-md bg-secondary text-foreground text-xs font-medium hover:bg-accent transition-colors"
+            >
+              Seleccionar archivos
+            </label>
+          </div>
+          {previews.length > 0 && (
+            <div className="mt-3 grid grid-cols-4 gap-2">
+              {previews.map((src, i) => (
+                <div key={i} className="relative group">
+                  <img src={src} alt="" className="h-20 w-full rounded object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 p-0.5 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="flex gap-3 pt-2">
-          <button type="submit" className="btn-luxury-primary rounded-md text-xs flex-1">
-            Guardar Propiedad
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn-luxury-primary rounded-md text-xs flex-1 disabled:opacity-50"
+          >
+            {submitting ? "Guardando..." : "Guardar Propiedad"}
           </button>
           <button type="button" onClick={onDone} className="btn-luxury-outline rounded-md text-xs flex-1">
             Cancelar

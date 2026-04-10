@@ -3,7 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { PropertyCard } from "@/components/PropertyCard";
-import { getPropertiesByTag } from "@/data/properties";
+import { useProperties } from "@/hooks/use-properties";
 
 export const Route = createFileRoute("/venta")({
   component: VentaPage,
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/venta")({
 });
 
 function VentaPage() {
-  const ventas = getPropertiesByTag("Venta");
+  const { properties: ventas, loading } = useProperties("Venta");
 
   return (
     <div className="min-h-screen">
@@ -33,7 +33,9 @@ function VentaPage() {
             </p>
           </div>
 
-          {ventas.length > 0 ? (
+          {loading ? (
+            <p className="text-center text-muted-foreground py-8">Cargando...</p>
+          ) : ventas.length > 0 ? (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {ventas.map((property) => (
                 <PropertyCard key={property.id} property={property} />
