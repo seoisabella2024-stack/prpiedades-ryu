@@ -7,15 +7,16 @@ import { StatsSection } from "@/components/StatsSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "LUXEPROP — Propiedades de Lujo en Chile" },
-      { name: "description", content: "Descubre las propiedades más exclusivas del mercado inmobiliario chileno. Villas, penthouses y casas de lujo." },
-      { property: "og:title", content: "LUXEPROP — Propiedades de Lujo en Chile" },
-      { property: "og:description", content: "Descubre las propiedades más exclusivas del mercado inmobiliario chileno." },
+      { title: "Ryu Propiedades — Arriendos y Ventas en Los Ángeles" },
+      { name: "description", content: "Arriendos, ventas, administración y constructora en Los Ángeles, Chile. Encuentra tu propiedad ideal con Ryu Propiedades." },
+      { property: "og:title", content: "Ryu Propiedades — Arriendos y Ventas en Los Ángeles" },
+      { property: "og:description", content: "Arriendos, ventas, administración y constructora en Los Ángeles, Chile." },
     ],
   }),
 });
@@ -31,6 +32,7 @@ function Index() {
       <TestimonialsSection />
       <CTASection />
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 }
