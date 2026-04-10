@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Send } from "lucide-react";
+import { Phone } from "lucide-react";
 
 export function CTASection() {
   return (
@@ -12,36 +12,31 @@ export function CTASection() {
           transition={{ duration: 0.7 }}
         >
           <p className="font-body text-xs font-medium uppercase tracking-[0.3em] text-background/50 mb-4">
-            Comienza Hoy
+            ¿Buscas propiedad?
           </p>
-          <h2 className="font-heading text-4xl font-light text-background md:text-5xl">
-            ¿Listo para encontrar tu
-            <br />
-            <span className="italic">propiedad ideal?</span>
+          <h2 className="font-heading text-3xl font-bold text-background md:text-4xl">
+            Contáctanos Hoy
           </h2>
-          <p className="mt-6 mx-auto max-w-lg font-body text-sm font-light leading-relaxed text-background/60">
-            Déjanos tus datos y un asesor especializado se pondrá en contacto contigo para ayudarte a encontrar la propiedad perfecta.
+          <p className="mt-4 mx-auto max-w-lg font-body text-sm font-light leading-relaxed text-background/60">
+            Estamos en Av. Alemania 799, Los Ángeles. Escríbenos por WhatsApp o visítanos directamente.
           </p>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center sm:items-center max-w-lg mx-auto">
-            <input
-              type="email"
-              placeholder="Tu correo electrónico"
-              className="flex-1 rounded-sm bg-background/10 border border-background/20 px-5 py-3 font-body text-sm text-background placeholder:text-background/40 outline-none focus:border-background/50 transition-colors"
-            />
-            <button className="inline-flex items-center justify-center gap-2 rounded-sm bg-background px-6 py-3 font-body text-sm font-medium tracking-wider uppercase text-foreground transition-all hover:opacity-90">
-              <Send size={14} />
-              Contactar
-            </button>
-          </div>
-
-          <div className="mt-10 flex flex-wrap justify-center gap-8">
-            <button className="btn-luxury border border-background/20 text-background/80 rounded-sm hover:bg-background/10 text-xs">
-              Explorar Propiedades
-            </button>
-            <button className="btn-luxury border border-background/20 text-background/80 rounded-sm hover:bg-background/10 text-xs">
-              Agendar Visita
-            </button>
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <a
+              href="https://wa.me/56941336389?text=Hola%2C%20quiero%20agendar%20una%20visita"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-whatsapp px-6 py-3 font-body text-sm font-medium text-white transition-transform hover:scale-105"
+            >
+              <Phone size={16} />
+              WhatsApp +56 9 4133 6389
+            </a>
+            <a
+              href="tel:+56941336389"
+              className="btn-luxury border border-background/20 text-background/80 rounded-md hover:bg-background/10 text-xs"
+            >
+              Llamar Ahora
+            </a>
           </div>
         </motion.div>
       </div>

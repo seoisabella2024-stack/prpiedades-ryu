@@ -1,26 +1,26 @@
 import { motion } from "framer-motion";
-import { Home, Key, Building2, Settings } from "lucide-react";
+import { Key, Home, Building2, HardHat } from "lucide-react";
 
 const services = [
   {
-    icon: <Home size={28} />,
-    title: "Compra",
-    description: "Te acompañamos en cada paso para encontrar la propiedad de tus sueños con asesoría personalizada.",
+    icon: <Key size={28} />,
+    title: "Arriendos",
+    description: "Gestión integral de arriendos para propietarios e inquilinos. Encontramos el hogar perfecto para ti.",
   },
   {
-    icon: <Key size={28} />,
+    icon: <Home size={28} />,
     title: "Venta",
-    description: "Maximizamos el valor de tu propiedad con estrategias de marketing de alto impacto.",
+    description: "Te acompañamos en cada paso para vender o comprar tu propiedad al mejor precio del mercado.",
   },
   {
     icon: <Building2 size={28} />,
-    title: "Arriendo",
-    description: "Gestión integral de arriendos para propietarios e inquilinos con total tranquilidad.",
+    title: "Administración",
+    description: "Administración profesional de propiedades, optimizando rentabilidad y mantención.",
   },
   {
-    icon: <Settings size={28} />,
-    title: "Gestión",
-    description: "Administración profesional de tus propiedades, optimizando rentabilidad y mantención.",
+    icon: <HardHat size={28} />,
+    title: "Constructora",
+    description: "Proyectos de construcción con los más altos estándares de calidad y diseño moderno.",
   },
 ];
 
@@ -28,12 +28,9 @@ export function ServicesSection() {
   return (
     <section className="section-padding bg-secondary">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-16 text-center">
+        <div className="mb-12 text-center">
           <p className="label-luxury mb-3">Lo que Hacemos</p>
           <h2 className="heading-section text-foreground">Nuestros Servicios</h2>
-          <p className="mt-4 mx-auto max-w-xl text-body">
-            Ofrecemos un servicio integral en el mercado inmobiliario de lujo, con la excelencia que nuestros clientes merecen.
-          </p>
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -49,7 +46,7 @@ export function ServicesSection() {
               <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                 {service.icon}
               </div>
-              <h3 className="font-heading text-xl font-medium text-foreground">
+              <h3 className="font-heading text-xl font-semibold text-foreground">
                 {service.title}
               </h3>
               <p className="mt-3 text-body text-sm">{service.description}</p>
